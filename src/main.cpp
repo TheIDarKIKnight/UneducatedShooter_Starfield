@@ -8,9 +8,9 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <Xinput.h>
-using namespace F4SE;
+using namespace SFSE;
 #define MATH_PI 3.14159265358979323846
-#define HAVOKTOFO4 69.99124f
+#define HAVOKTOSF 69.99124f
 
 using std::vector;
 using namespace RE;
@@ -29,7 +29,7 @@ static uintptr_t UpdateSceneGraphOrig;*/
 REL::Relocation<uintptr_t> ptr_RunActorUpdates{ REL::ID(556439), 0x17 };
 uintptr_t RunActorUpdatesOrig;
 REL::Relocation<uintptr_t> ptr_bhkWorldUpdate{ REL::ID(1395106) };
-const F4SE::TaskInterface* taskInterface;
+const SFSE::TaskInterface* taskInterface;
 //vector<hkVector4f> cachedShape[5];
 PlayerCharacter* p;
 PlayerCamera* pcam;
@@ -223,7 +223,7 @@ NiNode* InsertBone(NiAVObject* root, NiNode* node, const char* name)
 		return inserted;
 	} else {
 		if (!inserted->GetObjectByName(node->name)) {
-			_MESSAGE("%s structure mismatch. Reinserting... (%f)", inserted->name.c_str(), *F4::ptr_engineTime);
+			_MESSAGE("%s structure mismatch. Reinserting... (%f)", inserted->name.c_str(), *SF::ptr_engineTime);
 			//_MESSAGE("%s (%llx) created.", name, inserted);
 			if (parent) {
 				parent->AttachChild(inserted, true);
@@ -269,9 +269,9 @@ float Sign(float f)
 
 void LoadConfigs()
 {
-	std::string path = "Data\\MCM\\Config\\UneducatedShooter\\settings.ini";
+	std::string path = "Data\\US\\Config\\UneducatedShooter\\settings.ini";
 	if (std::filesystem::exists(path)) {
-		path = "Data\\MCM\\Settings\\UneducatedShooter.ini";
+		path = "Data\\US\\Settings\\UneducatedShooter.ini";
 	}
 	CSimpleIniA ini(true, false, false);
 	SI_Error result = ini.LoadFile(path.c_str());
@@ -316,7 +316,7 @@ void LoadConfigs()
 		buttonDevMode = std::stoi(ini.GetValue("Dev", "bbuttonDevMode", "0")) > 0;
 	}
 	ini.Reset();
-	std::string hotkeyPath = "Data\\MCM\\Settings\\Keybinds.json";
+	std::string hotkeyPath = "Data\\US\\Settings\\Keybinds.json";
 	if (std::filesystem::exists(hotkeyPath)) {
 		std::ifstream reader;
 		try {
@@ -508,9 +508,9 @@ protected:
 LeanLookHandler::FnOnMouseMoveEvent LeanLookHandler::mouseEvn;
 LeanLookHandler::FnOnThumbstickEvent LeanLookHandler::thumbstickEvn;
 
-void HookedActorUpdate(F4::ProcessLists* list, float dt, bool instant)
+void HookedActorUpdate(SF::ProcessLists* list, float dt, bool instant)
 {
-	float curTime = *F4::ptr_engineTime;
+	float curTime = *SF::ptr_engineTime;
 	if (curTime - lastSkeletonUpdate > 1.f) {
 		PreparePlayerSkeleton(p->Get3D());
 		lastSkeletonUpdate = curTime;
@@ -522,7 +522,7 @@ void HookedActorUpdate(F4::ProcessLists* list, float dt, bool instant)
 		PreparePlayerSkeleton();
 	}
 
-	typedef void (*FnUpdate)(F4::ProcessLists*, float, bool);
+	typedef void (*FnUpdate)(SF::ProcessLists*, float, bool);
 	FnUpdate fn = (FnUpdate)RunActorUpdatesOrig;
 	if (fn)
 		(*fn)(list, dt, instant);
@@ -763,7 +763,7 @@ void HookedActorUpdate(F4::ProcessLists* list, float dt, bool instant)
 						}
 						hkTransform charProxyTransform;
 						con->GetTransformImpl(charProxyTransform);
-						float deltaDist = transDist * deltaLeanWeight / HAVOKTOFO4;
+						float deltaDist = transDist * deltaLeanWeight / HAVOKTOSF;
 						pick->Reset();
 						GetPickDataCELL(a->data.location + NiPoint3(0, 0, height / 2.f), a->data.location + NiPoint3(0, 0, height / 2.f) - right * transDist * Sign(deltaLeanWeight), a, *pick);
 						hkVector4f displacement = right * -deltaDist;
@@ -1093,14 +1093,14 @@ public:
 		} else {
 			if (evn.formId == 0x14) {
 				_MESSAGE("Player loaded");
-				playerLastLoaded = *F4::ptr_engineTime;
-				lastSkeletonUpdate = *F4::ptr_engineTime;
+				playerLastLoaded = *SF::ptr_engineTime;
+				lastSkeletonUpdate = *SF::ptr_engineTime;
 				PreparePlayerSkeleton();
 			}
 		}
 		return BSEventNotifyControl::kContinue;
 	}
-	F4_HEAP_REDEFINE_NEW(ObjectLoadWatcher);
+	SF_HEAP_REDEFINE_NEW(ObjectLoadWatcher);
 };
 
 class MenuWatcher : public BSTEventSink<MenuOpenCloseEvent>
@@ -1177,7 +1177,7 @@ void InitializePlugin()
 
 #pragma endregion
 
-extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
+extern "C" DLLEXPORT bool SFSEAPI SFSEPlugin_Query(const SFSE::QueryInterface* a_SFSE, SFSE::PluginInfo* a_info)
 {
 #ifndef NDEBUG
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -1205,51 +1205,51 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
 
-	a_info->infoVersion = F4SE::PluginInfo::kVersion;
+	a_info->infoVersion = SFSE::PluginInfo::kVersion;
 	a_info->name = Version::PROJECT.data();
 	a_info->version = Version::MAJOR;
 
-	if (a_f4se->IsEditor()) {
+	if (a_SFSE->IsEditor()) {
 		logger::critical(FMT_STRING("loaded in editor"));
 		return false;
 	}
 
-	const auto ver = a_f4se->RuntimeVersion();
-	if (ver < F4SE::RUNTIME_1_10_162) {
+	const auto ver = a_SFSE->RuntimeVersion();
+	if (ver < SFSE::RUNTIME_1_10_162) {
 		logger::critical(FMT_STRING("unsupported runtime v{}"), ver.string());
 		return false;
 	}
 
-	F4SE::AllocTrampoline(8 * 8);
+	SFSE::AllocTrampoline(8 * 8);
 
 	return true;
 }
 
-extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
+extern "C" DLLEXPORT bool SFSEAPI SFSEPlugin_Load(const SFSE::LoadInterface* a_SFSE)
 {
-	F4SE::Init(a_f4se);
+	SFSE::Init(a_SFSE);
 
-	F4SE::Trampoline& trampoline = F4SE::GetTrampoline();
+	SFSE::Trampoline& trampoline = SFSE::GetTrampoline();
 	RunActorUpdatesOrig = trampoline.write_call<5>(ptr_RunActorUpdates.address(), &HookedActorUpdate);
 	//PCUpdateMainThreadOrig = trampoline.write_call<5>(ptr_PCUpdateMainThread.address(), &HookedPCUpdate);
 	//UpdateSceneGraphOrig = trampoline.write_call<5>(ptr_UpdateSceneGraph.address(), &HookedUpdateSceneGraph);
 
-	taskInterface = F4SE::GetTaskInterface();
+	taskInterface = SFSE::GetTaskInterface();
 
-	const F4SE::MessagingInterface* message = F4SE::GetMessagingInterface();
-	message->RegisterListener([](F4SE::MessagingInterface::Message* msg) -> void {
-		if (msg->type == F4SE::MessagingInterface::kGameDataReady) {
+	const SFSE::MessagingInterface* message = SFSE::GetMessagingInterface();
+	message->RegisterListener([](SFSE::MessagingInterface::Message* msg) -> void {
+		if (msg->type == SFSE::MessagingInterface::kGameDataReady) {
 			InitializePlugin();
 			LoadConfigs();
-		} else if (msg->type == F4SE::MessagingInterface::kGameLoaded) {
+		} else if (msg->type == SFSE::MessagingInterface::kGameLoaded) {
 			BSScaleformTranslator* translator = (BSScaleformTranslator*)BSScaleformManager::GetSingleton()->loader->GetStateAddRef(Scaleform::GFx::State::StateType::kTranslator);
 			if (translator) {
 				Translation::ParseTranslation(translator, "UneducatedShooter");
 				_MESSAGE("Translation injected");
 			}
-		} else if (msg->type == F4SE::MessagingInterface::kPostLoadGame) {
+		} else if (msg->type == SFSE::MessagingInterface::kPostLoadGame) {
 			LoadConfigs();
-		} else if (msg->type == F4SE::MessagingInterface::kNewGame) {
+		} else if (msg->type == SFSE::MessagingInterface::kNewGame) {
 			LoadConfigs();
 		}
 	});

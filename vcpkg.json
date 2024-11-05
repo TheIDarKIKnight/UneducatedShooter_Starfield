@@ -1,8 +1,8 @@
 {
   "name": "exampleproject",
   "version-string": "1.0.0",
-  "description": "An example project built using CommonLibF4",
-  "homepage": "https://github.com/Ryan-rsm-McKenzie/CommonLibF4",
+  "description": "An example project built using CommonLibSF",
+  "homepage": "https://github.com/Ryan-rsm-McKenzie/CommonLibSF",
   "license": "MIT",
   "dependencies": [
     "boost-iostreams",

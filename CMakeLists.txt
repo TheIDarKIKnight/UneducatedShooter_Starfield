@@ -12,7 +12,7 @@ macro(set_from_environment VARIABLE)
 	endif ()
 endmacro()
 
-set_from_environment(Fallout4Path)
+set_from_environment(StarfieldPath)
 set_from_environment(VCPKG_ROOT)
 
 if (DEFINED VCPKG_ROOT)
@@ -74,8 +74,8 @@ set(Boost_USE_STATIC_LIBS ON)
 
 # ---- Dependencies ----
 
-if (NOT TARGET CommonLibF4)
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CommonLibF4" CommonLibF4)
+if (NOT TARGET CommonLibSF)
+	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../CommonLibSF" CommonLibSF)
 endif ()
 
 find_package(spdlog REQUIRED CONFIG)
@@ -101,7 +101,7 @@ source_group(
 
 set(
 	HAVOK_PATH
-	"D:/Games/Tullius Mod Pack  V 3.4.6.4/Workspace/F4SE Stuff/Havok Reference/From Nebula/Source/"
+	"D:/Games/Tullius Mod Pack  V 3.4.6.4/Workspace/SFSE Stuff/Havok Reference/From Nebula/Source/"
 )
 
 #file(GLOB_RECURSE HAVOK
@@ -174,7 +174,7 @@ target_include_directories(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		CommonLibF4::CommonLibF4
+		CommonLibSF::CommonLibSF
 		spdlog::spdlog
 		nlohmann_json::nlohmann_json
 #		${HAVOK_BASE}
@@ -244,17 +244,17 @@ endif ()
 # ---- File copying ----
 
 if (COPY_BUILD)
-	if (DEFINED Fallout4Path)
+	if (DEFINED StarfieldPath)
 		add_custom_command(
 			TARGET ${PROJECT_NAME}
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${Fallout4Path}/Data/F4SE/Plugins/
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${Fallout4Path}/Data/F4SE/Plugins/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${StarfieldPath}/Data/SFSE/Plugins/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${StarfieldPath}/Data/SFSE/Plugins/
 		)
 	else ()
 		message(
 			WARNING
-			"Variable Fallout4Path is not defined. Skipping post-build copy command."
+			"Variable StarfieldPath is not defined. Skipping post-build copy command."
 		)
 	endif ()
 endif ()

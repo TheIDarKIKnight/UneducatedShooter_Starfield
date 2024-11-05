@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma warning(push)
-#include "F4SE/F4SE.h"
+#include "SFSE/SFSE.h"
 #include "RE/Fallout.h"
 
 #ifdef NDEBUG
@@ -18,7 +18,7 @@
 
 #define DLLEXPORT __declspec(dllexport)
 
-namespace logger = F4SE::log;
+namespace logger = SFSE::log;
 
 using namespace std::literals;
 

@@ -4,7 +4,7 @@ import zipfile
 
 def make_rel_archive(a_args):
 	archive = zipfile.ZipFile("{}.zip".format(a_args.name), "w", zipfile.ZIP_DEFLATED)
-	archive.write(a_args.dll, "F4SE/Plugins/{}".format(os.path.basename(a_args.dll)))
+	archive.write(a_args.dll, "SFSE/Plugins/{}".format(os.path.basename(a_args.dll)))
 
 def make_dbg_archive(a_args):
 	archive = zipfile.ZipFile("{}_pdb.zip".format(a_args.name), "w", zipfile.ZIP_DEFLATED)
