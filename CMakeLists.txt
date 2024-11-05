@@ -31,7 +31,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE 
 # ---- Project ----
 
 project(
-	UneducatedShooter
+	UneducatedShooterSF
 	VERSION 1.0.0
 	LANGUAGES CXX
 )
